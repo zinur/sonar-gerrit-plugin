@@ -49,8 +49,8 @@ public class SonarToGerritPublisher extends Publisher implements SimpleBuildStep
 
     // ------------------ configuration settings
     /*
-    * The URL of SonarQube server to be used for comments
-    * */
+     * The URL of SonarQube server to be used for comments
+     * */
     @Nonnull
     private InspectionConfig inspectionConfig = new InspectionConfig();
 
@@ -73,11 +73,11 @@ public class SonarToGerritPublisher extends Publisher implements SimpleBuildStep
     //    @DataBoundConstructor
     @Deprecated //since 2.0. Left here for Jenkins version < 1.625.3
     public SonarToGerritPublisher(String sonarURL, List<SubJobConfig> subJobConfigs,
-                                  String severity, boolean changedLinesOnly, boolean newIssuesOnly,
-                                  String noIssuesToPostText, String someIssuesToPostText, String issueComment,
-                                  boolean overrideCredentials, String httpUsername, String httpPassword,
-                                  boolean postScore, String category, String noIssuesScore, String issuesScore,
-                                  String noIssuesNotification, String issuesNotification) {
+            String severity, boolean changedLinesOnly, boolean newIssuesOnly,
+            String noIssuesToPostText, String someIssuesToPostText, String issueComment,
+            boolean overrideCredentials, String httpUsername, String httpPassword,
+            boolean postScore, String category, String noIssuesScore, String issuesScore,
+            String noIssuesNotification, String issuesNotification) {
         setSonarURL(sonarURL);
         setSubJobConfigs(subJobConfigs);
 
@@ -109,7 +109,7 @@ public class SonarToGerritPublisher extends Publisher implements SimpleBuildStep
 
         //load revision info
         GerritTrigger trigger = GerritTrigger.getTrigger(run.getParent());
-        Map<String, String> envVars = getEnvVars(run, listener, (String[]) GerritConnectionInfo.REQUIRED_VARS.toArray());
+        Map<String, String> envVars = getEnvVars(run, listener, GerritConnectionInfo.REQUIRED_VARS);
         GerritConnectionInfo connectionInfo = new GerritConnectionInfo(envVars, trigger, authConfig);
         try {
             GerritConnector connector = new GerritConnector(connectionInfo);
@@ -155,14 +155,14 @@ public class SonarToGerritPublisher extends Publisher implements SimpleBuildStep
     }
 
     private Multimap<String, IssueAdapter> getFilteredFileToIssueMultimap(IssueFilterConfig filterConfig,
-                                                                          SonarConnector sonarConnector,
-                                                                          Map<String, Set<Integer>> fileToChangedLines) {
+            SonarConnector sonarConnector,
+            Map<String, Set<Integer>> fileToChangedLines) {
         IssueFilter commentFilter = new IssueFilter(filterConfig, sonarConnector.getIssues(), fileToChangedLines);
         Iterable<IssueAdapter> issuesToComment = commentFilter.filter();
         return sonarConnector.getReportData(issuesToComment);
     }
 
-    private Map<String, String> getEnvVars(Run<?, ?> run, TaskListener listener, String... varNames) throws IOException, InterruptedException {
+    private Map<String, String> getEnvVars(Run<?, ?> run, TaskListener listener, List<String> varNames) throws IOException, InterruptedException {
         Map<String, String> envVars = new HashMap<>();
         for (String varName : varNames) {
             envVars.put(varName, getEnvVar(run, listener, varName));
@@ -206,6 +206,8 @@ public class SonarToGerritPublisher extends Publisher implements SimpleBuildStep
     /**
      * Descriptor for {@link SonarToGerritPublisher}. Used as a singleton.
      * The class is marked as public so that it can be accessed from views.
+     * <p>
+     * <p>
      * See <tt>src/main/resources/hudson/plugins/hello_world/SonarToGerritBuilder/*.jelly</tt>
      * for the actual HTML fragment for the configuration screen.
      */
@@ -523,4 +525,3 @@ public class SonarToGerritPublisher extends Publisher implements SimpleBuildStep
         return backCompatibilityHelper.getPath();
     }
 }
-
